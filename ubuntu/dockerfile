@@ -39,29 +39,18 @@ ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
 
 # Create a user
-RUN useradd -ms /usr/bin/fish devuser && \
-    echo "devuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+RUN useradd -ms /usr/bin/fish user && \
+    echo "user ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # Set default shell to fish
 SHELL ["/usr/bin/fish", "-c"]
 
 # Switch to user
-USER devuser
-WORKDIR /home/devuser
+USER user
+WORKDIR /home/user
 
-# Expose common dev ports
-EXPOSE 22    
-# SSH
-EXPOSE 80    
-# HTTP
-EXPOSE 443   
-# HTTPS
-EXPOSE 3000  
-# Web dev (Node.js, etc.)
-EXPOSE 8000  
-# Python, APIs
-EXPOSE 8080  
-# Web servers (nginx, http-server)
+# Expose common dev ports :- SSH, HTTP, HTTPS, js, python, servers.
+EXPOSE 22  80  443  3000  8000  8080  
 
 # Default command
 CMD ["fish"]

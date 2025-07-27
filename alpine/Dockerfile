@@ -7,8 +7,10 @@ ENV TZ=UTC \
     LANGUAGE=en_US:en \
     LC_ALL=en_US.UTF-8
 
-# Install fish, common tools, and dependencies
-RUN apk update && apk upgrade && apk add --no-cache \
+# Install fish, common tools, and dependencies in a single RUN layer to reduce image size
+RUN apk update && \
+    apk upgrade --no-cache && \
+    apk add --no-cache \
     fish \
     curl \
     wget \
@@ -30,29 +32,35 @@ RUN apk update && apk upgrade && apk add --no-cache \
     net-tools \
     unzip \
     zip \
-    tar
-
-# Set timezone (Alpine needs this explicitly)
-RUN cp /usr/share/zoneinfo/$TZ /etc/localtime && echo "$TZ" > /etc/timezone
-
-# Add non-root user
-RUN useradd -m -s /usr/bin/fish devuser && \
-    echo "devuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+    tar && \
+    # Set timezone (Alpine needs this explicitly)
+    cp /usr/share/zoneinfo/$TZ /etc/localtime && \
+    echo "$TZ" > /etc/timezone && \
+    # Add non-root user
+    useradd -m -s /usr/bin/fish user && \
+    echo "user ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
+    # Clean up
+    rm -rf /var/cache/apk/*
 
 # Switch to fish shell by default
 SHELL ["/usr/bin/fish", "-c"]
 
 # Switch to new user
-USER devuser
-WORKDIR /home/devuser
+USER user
+WORKDIR /home/user
 
-# Expose useful ports
-EXPOSE 22    # SSH
-EXPOSE 80    # HTTP
-EXPOSE 443   # HTTPS
-EXPOSE 3000  # Frontend dev
-EXPOSE 8000  # Backend API
-EXPOSE 8080  # Web servers
+# Create a healthcheck (recommended for containers) 
+# enable if testing APIs
+# HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+#     CMD fish -c "curl --fail http://localhost || exit 1"
 
-# Default command
+# Expose common dev ports :- SSH, HTTP, HTTPS, js, python, servers.
+EXPOSE 22    
+EXPOSE 80    
+EXPOSE 443   
+EXPOSE 3000  
+EXPOSE 8000  
+EXPOSE 8080  
+
+# Set a default command to run when container starts
 CMD ["fish"]

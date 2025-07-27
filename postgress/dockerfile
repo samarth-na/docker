@@ -2,9 +2,9 @@
 FROM postgres:latest
 
 # Set default environment variables (can still be overridden at runtime)
-ENV POSTGRES_USER=myuser
-ENV POSTGRES_PASSWORD=mypassword
-ENV POSTGRES_DB=mydatabase
+ENV POSTGRES_USER=pg
+ENV POSTGRES_PASSWORD=password
+ENV POSTGRES_DB=postgres
 
 # Copy init SQL file (automatically runs on first startup)
-COPY init.sql /docker-entrypoint-initdb.d/
+COPY init.sql /db_init.sql
